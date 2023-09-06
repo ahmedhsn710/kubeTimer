@@ -6,11 +6,12 @@ body {
 
 #particles {
     background-color: rgb(30, 30, 30);
+    width: 100vw;
+    height: 100vh;
 }
 
 #cont {
     position: relative;
-    scroll-behavior: smooth;
 }
 
 #main {
