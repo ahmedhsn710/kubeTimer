@@ -38,6 +38,8 @@ const timeChartCanvas = document.getElementById('timeChart');
 let timeChartInstance = null;
 let isModalOpen = false;
 
+const checkbox = document.getElementById("switch");
+
 // event handelers
 // spacebar
 document.addEventListener("keyup", function (event) {
@@ -97,6 +99,8 @@ window.addEventListener('click', (event) => {
     }
 });
 
+checkbox.addEventListener("change", toggleVariable);
+
 // important functions
 //Stopwatch function (logic to determine when to increment next value, etc.)
 function stopWatch() {
@@ -146,7 +150,7 @@ function startStop() {
 
         interval = window.setInterval(stopWatch, 10);
         if (!show) {
-            document.getElementById("con").style.display = 'none';
+            document.getElementById("time").style.display = 'none';
         }
         stsp = 1;
 
@@ -156,7 +160,7 @@ function startStop() {
         msec = 0;
         seconds = 0;
         minutes = 0;
-        document.getElementById("con").style.display = 'block';
+        document.getElementById("time").style.display = 'block';
         stsp = 0;
         savescr();
         genscramble();
@@ -421,6 +425,11 @@ function calculateAvg12() {
     } else {
         return "N/A";
     }
+}
+
+// Function to toggle the variable show
+function toggleVariable() {
+    show = !checkbox.checked;
 }
 
 // function calls
