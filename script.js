@@ -144,7 +144,7 @@ function startStop() {
 function savescr() {
     // Retrieve slvlistsec from localStorage (if available)
     let slvlistsec = JSON.parse(localStorage.getItem('slvlistsec')) || [];
-    let btsec = JSON.parse(localStorage.getItem('btsec')) || Number.MAX_VALUE; // Initialize to a large value
+    let btsec =  Number.MAX_VALUE; // Initialize to a large value
     let time = timesec.toFixed(2);
     slvlistsec.push(time);
     
@@ -212,7 +212,7 @@ function loadsetup() {
     document.getElementById("slv1").innerHTML = "Current solve : " + slv;
 
     for (let i = slvlistsec.length - 1; i >= 0; i--) {
-        if (slv === 0 || slv > slvlistsec[i]) slv = slvlistsec[i];
+        if (slv > slvlistsec[i]) slv = slvlistsec[i];
     }
     
     document.getElementById("btslv1").innerHTML = "today's best solve : " + slv;
