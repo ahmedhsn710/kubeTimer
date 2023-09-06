@@ -121,7 +121,6 @@ function startStop() {
         //Start the stopwatch (by calling the setInterval() function)
 
         interval = window.setInterval(stopWatch, 10);
-        document.getElementById("startStop").innerHTML = "Stop";
         if (!show) {
             document.getElementById("con").style.display = 'none';
         }
@@ -133,7 +132,6 @@ function startStop() {
         msec = 0;
         seconds = 0;
         minutes = 0;
-        document.getElementById("startStop").innerHTML = "Start";
         document.getElementById("con").style.display = 'block';
         stsp = 0;
         savescr();
