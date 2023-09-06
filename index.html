@@ -8,6 +8,7 @@
     <link rel="stylesheet" href="style.css">
     <link rel="icon" href="timericon.png">
     <script src="https://cdn.jsdelivr.net/particles.js/2.0.0/particles.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <title>AH Timer</title>
 </head>
 
@@ -76,6 +77,13 @@
                 </div>
             </div>
 
+        </div>
+    </div>
+    <div id="myModal" class="modal">
+        <div class="modal-content">
+            <!-- The chart canvas goes here -->
+            <canvas id="timeChart"></canvas>
+            <button id="closeModalBtn">Close</button>
         </div>
     </div>
     <script>

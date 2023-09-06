@@ -27,49 +27,73 @@ let show = true;
 // chars for scramble
 const chars = ["F ", "B ", "L ", "R ", "U ", "D ", "F' ", "B' ", "L' ", "R' ", "U' ", "D' ", "F2 ", "B2 ", "R2 ", "L2 ", "U2 ", "B2 "];
 
+const modal = document.getElementById('myModal');
+const openModalBtn = document.getElementById('openModalBtn');
+const closeModalBtn = document.getElementById('closeModalBtn');
+
+// Get the chart canvas
+const timeChartCanvas = document.getElementById('timeChart');
+
+// Global variable to keep track of the Chart instance
+let timeChartInstance = null;
+let isModalOpen = false;
 
 // event handelers
 // spacebar
 document.addEventListener("keyup", function (event) {
-    if (event.keyCode == 32) {
+    if (event.keyCode == 32 && !isModalOpen ) {
         document.getElementById("particles").style.backgroundColor = 'rgb(30, 30, 30)';
         startStop();
     }
 });
 document.addEventListener("keydown", function (event) {
-    if (event.keyCode == 32) {
+    if (event.keyCode == 32 && !isModalOpen) {
         document.getElementById("particles").style.backgroundColor = 'black';
     }
 });
 
 // backspace
 document.addEventListener("keyup", function (event) {
-    if (event.keyCode == 8) {
+    if (event.keyCode == 8 && !isModalOpen) {
         document.getElementById("particles").style.backgroundColor = 'rgb(30, 30, 30)';
         const response = confirm("Are you sure you want to delete last solve?");
-        if(response) deleteslv();
+        if (response) deleteslv();
     }
 });
 document.addEventListener("keydown", function (event) {
-    if (event.keyCode == 8) {
+    if (event.keyCode == 8 && !isModalOpen) {
         document.getElementById("particles").style.backgroundColor = 'rgb(50, 30, 30)';
     }
 });
 
 // delete
 document.addEventListener("keyup", function (event) {
-    if (event.keyCode == 46) {
+    if (event.keyCode == 46 && !isModalOpen) {
         document.getElementById("particles").style.backgroundColor = 'rgb(30, 30, 30)';
         const response = confirm("Are you sure you want to clear history?");
-        if(response) {
+        if (response) {
             localStorage.clear();
             loadsetup();
         }
     }
 });
 document.addEventListener("keydown", function (event) {
-    if (event.keyCode == 46) {
+    if (event.keyCode == 46 && !isModalOpen) {
         document.getElementById("particles").style.backgroundColor = 'rgb(50, 30, 50)';
+    }
+});
+
+// Event listener to close the modal
+closeModalBtn.addEventListener('click', () => {
+    modal.style.display = 'none';
+    isModalOpen = false;
+});
+
+// Close the modal if the user clicks outside of it
+window.addEventListener('click', (event) => {
+    if (event.target === modal) {
+        modal.style.display = 'none';
+        isModalOpen = false;
     }
 });
 
@@ -147,7 +171,7 @@ function savescr() {
     let btsec = JSON.parse(localStorage.getItem('btsec')) || Number.MAX_VALUE; // Initialize to a large value
     let time = timesec.toFixed(2);
     slvlistsec.push(time);
-    
+
     // Calculate bestsec
     for (let i = 0; i < slvlistsec.length; i++) {
         if (btsec > slvlistsec[i]) {
@@ -194,7 +218,7 @@ function savescr() {
         document.getElementById("btavg12").innerHTML = "today's best avg12 :" + btavg12;
         localStorage.setItem('avg12list', JSON.stringify(avg12list));
     }
-    
+
     let numslv = JSON.parse(localStorage.getItem('nslv')) || 0;
     numslv++;
     let tavg = calculateAvg();
@@ -214,11 +238,11 @@ function loadsetup() {
     for (let i = slvlistsec.length - 1; i >= 0; i--) {
         if (slv > slvlistsec[i]) slv = slvlistsec[i];
     }
-    
+
     document.getElementById("btslv1").innerHTML = "today's best solve : " + slv;
     localStorage.setItem('btsec', JSON.stringify(slv));
 
-    
+
     let avg5list = JSON.parse(localStorage.getItem('avg5list')) || [];
     if (avg5list.length === 0) slv = 0
     else slv = avg5list[avg5list.length - 1];
@@ -255,8 +279,8 @@ function deleteslv() {
     let numslv = JSON.parse(localStorage.getItem('nslv')) || 0;
     if (slvlistsec.length > 0) {
         slvlistsec.pop();
-        if(avg5list.length > 0) avg5list.pop();
-        if(avg12list.length > 0) avg12list.pop();
+        if (avg5list.length > 0) avg5list.pop();
+        if (avg12list.length > 0) avg12list.pop();
         localStorage.setItem('slvlistsec', JSON.stringify(slvlistsec));
         localStorage.setItem('avg5list', JSON.stringify(avg5list));
         localStorage.setItem('avg12list', JSON.stringify(avg12list));
@@ -265,6 +289,77 @@ function deleteslv() {
     }
 }
 
+//show stats 
+function showstats() {
+    let slvlistsec = JSON.parse(localStorage.getItem('slvlistsec')) || [];
+    let avg5list = JSON.parse(localStorage.getItem('avg5list')) || [];
+    let avg12list = JSON.parse(localStorage.getItem('avg12list')) || [];
+
+    createOrUpdateChart(slvlistsec, avg5list, avg12list);
+    modal.style.display = 'block';
+    isModalOpen = true;
+}
+
+// Function to create or update the chart with multiple datasets
+function createOrUpdateChart(slvlistsec, avg5list, avg12list) {
+    if (timeChartInstance) {
+        // Destroy the existing chart if it exists
+        timeChartInstance.destroy();
+    }
+
+    // Create arrays for avg5 and avg12 with null values for the initial solves
+    const avg5Data = Array.from({ length: slvlistsec.length }, (_, i) => (i < 4) ? null : avg5list[i - 4]);
+    const avg12Data = Array.from({ length: slvlistsec.length }, (_, i) => (i < 11) ? null : avg12list[i - 11]);
+
+    // Create a new chart with multiple datasets
+    timeChartInstance = new Chart(timeChartCanvas, {
+        type: 'line',
+        data: {
+            labels: Array.from({ length: slvlistsec.length }, (_, i) => i + 1),
+            datasets: [
+                {
+                    label: 'Solve Times',
+                    data: slvlistsec,
+                    borderColor: 'rgb(75, 192, 192)',
+                    borderWidth: 2,
+                    fill: false,
+                },
+                {
+                    label: 'Avg5',
+                    data: avg5Data,
+                    borderColor: 'rgb(192, 75, 75)',
+                    borderWidth: 2,
+                    fill: false,
+                },
+                {
+                    label: 'Avg12',
+                    data: avg12Data,
+                    borderColor: 'rgb(75, 75, 192)',
+                    borderWidth: 2,
+                    fill: false,
+                },
+            ],
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: {
+                x: {
+                    title: {
+                        display: true,
+                        text: 'Attempts',
+                    },
+                },
+                y: {
+                    title: {
+                        display: true,
+                        text: 'Time (seconds)',
+                    },
+                },
+            },
+        },
+    });
+}
 
 // helper functions
 // scramble generator
