@@ -24,8 +24,9 @@ let stsp = 0;
 //variable for displaying time
 let show = true;
 
-// chars for scramble
-const chars = ["F ", "B ", "L ", "R ", "U ", "D ", "F' ", "B' ", "L' ", "R' ", "U' ", "D' ", "F2 ", "B2 ", "R2 ", "L2 ", "U2 ", "B2 "];
+// moves for scramble
+let moves = ["R", "U", "F", "L", "D", "B"]
+let variations = ["", "'", "2"]
 
 const modal = document.getElementById('myModal');
 const openModalBtn = document.getElementById('openModalBtn');
@@ -367,22 +368,58 @@ function createOrUpdateChart(slvlistsec, avg5list, avg12list) {
 
 // helper functions
 // scramble generator
-function genscramble() {
-    if (stsp === 0) {
-        let text = "";
-        let lastchar = "x";
-        for (let i = 0; i < 24;) {
-            let x;
-            do {
-                x = Math.floor(Math.random() * 18);
-            } while (chars[x][0] === lastchar);
-
-            text += chars[x];
-            lastchar = chars[x][0];
-            i++;
-        }
-        document.getElementById("scramble").innerHTML = text;
-    }
+function getscramblestring(scrambleArray) {
+	s = ""
+	for (let moveNum of scrambleArray) {
+		s += moves[moveNum];
+		s += variations[Math.floor(Math.random() * variations.length)];
+		s += " ";
+	}
+	return s;
+}
+function genscramble(scrambleLength = 24) {
+    if (stsp !== 0) return "";
+	if (scrambleLength === 0 ) return "";
+	
+	//First move	
+	let scramble = [];
+	let moveNum = Math.floor(Math.random() * moves.length);
+	scramble.push(moveNum);
+	if (scrambleLength === 1) {
+		document.getElementById("scramble").innerHTML = getscramblestring(scramble);
+	}
+	
+	//Second move
+	while (true) {
+		moveNum = Math.floor(Math.random() * moves.length);
+		if (moveNum === scramble[0]) continue;	//Same side moved
+		scramble.push(moveNum);
+		break;
+	}
+	
+	//All other moves
+	let i = 1;
+	while (i < scrambleLength) {
+		i++;
+		moveNum = Math.floor(Math.random() * moves.length);
+		
+		//Same side moved
+		if (moveNum === scramble[i-1]) {
+			i--;
+			continue;
+		}
+		
+		//Moving parallel sides thice is invalid
+		const newMoveType = moveNum % 3;
+		const latestMoveType = scramble[i-1] % 3;
+		const prevMoveType = scramble[i-2] % 3;
+		if (latestMoveType === prevMoveType && newMoveType === prevMoveType) {
+			i--;
+			continue;
+		}		
+		scramble.push(moveNum);
+	}
+	document.getElementById("scramble").innerHTML = getscramblestring(scramble);
 }
 
 // Function to calculate the average of all the solves
