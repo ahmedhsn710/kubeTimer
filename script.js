@@ -25,8 +25,8 @@ let stsp = 0;
 let show = true;
 
 // moves for scramble
-moves = ["R", "U", "F", "L", "D", "B"]
-variations = ["", "'", "2"]
+let moves = ["R", "U", "F", "L", "D", "B"]
+let variations = ["", "'", "2"]
 
 const modal = document.getElementById('myModal');
 const openModalBtn = document.getElementById('openModalBtn');
